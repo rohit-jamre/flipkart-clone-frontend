@@ -31,9 +31,10 @@ const Banner =() =>{
       responsive={responsive}
       swipeable ={false}
       draggable ={false}
-      infinite ={true}
-      autoPlay ={true}
-      autoPlaySpeed ={4000}
+      infinite={true}
+      autoPlay={true}
+      autoPlaySpeed={4000}
+      
       doListClass = "custom-dot-list-style"
       containerclass ="carousel-container"
       >
