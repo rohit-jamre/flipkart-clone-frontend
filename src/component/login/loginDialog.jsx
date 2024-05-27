@@ -1,7 +1,7 @@
-
-import { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Dialog, Box, TextField, Typography, Button, styled } from '@mui/material';
-import { authenticateSignup } from '../../service/api';
+import { authenticateSignup , authenticateLogin} from '../../service/api';
+import { DataContext } from '../../context/DataProvider';
 
 const Component = styled(Box)`
   height: 70vh;
@@ -83,18 +83,27 @@ const signupInitialValues = {
   password: '',
   phone: ''
 };
+const loginInitialValue ={
+  username: '',
+  password: ''
+}
 
 const LoginDialog = ({ open, setOpen }) => {
-  const [account, setAccount] = useState(accountInitialValues.login);
+  const [account, toggleAccount] = useState(accountInitialValues.login);
   const [signup, setSignup] = useState(signupInitialValues);
+  const [error, setError] = useState(null); // State to handle errors during signup
+  const [login, setLogin] = useState(loginInitialValue)
+  const { setAccount} = useContext(DataContext);
 
   const handleClose = () => {
     setOpen(false);
-    setAccount(accountInitialValues.login);
+    toggleAccount(accountInitialValues.login);
+    setSignup(signupInitialValues); // Clear signup form fields when closing dialog
+    setError(null); // Reset error state when closing the dialog
   };
 
   const toggleSignup = () => {
-    setAccount(accountInitialValues.signup);
+    toggleAccount(account === accountInitialValues.login ? accountInitialValues.signup : accountInitialValues.login);
   };
 
   const onInputChange = (e) => {
@@ -102,7 +111,32 @@ const LoginDialog = ({ open, setOpen }) => {
   };
 
   const signupUser = async () => {
-    await authenticateSignup(signup);
+    let response = await authenticateSignup(signup);
+    if(!response) return;
+    handleClose();
+    setAccount(signup.firstname);
+  };
+  const onValueChange =(e)=>{
+    setLogin({...login,[e.target.name]: e.target.value})
+  }
+  const loginUser =async() =>
+  {
+    let response= await authenticateLogin(login);
+    console.log(response);
+    
+    handleClose();
+    setAccount(login.username);
+
+  }
+  
+
+  // Function to validate signup data
+  const validateSignupData = (data) => {
+    // Implement your validation logic here
+    // Example: Check if required fields are filled
+    // Return true if data is valid, otherwise false
+    // You can customize this based on your requirements
+    return data.firstname && data.lastname && data.username && data.email && data.password && data.phone;
   };
 
   return (
@@ -116,10 +150,10 @@ const LoginDialog = ({ open, setOpen }) => {
           <Wrapper>
             {account.view === 'login' ? (
               <>
-                <TextField variant="standard" label="Enter Email/Mobile number" />
-                <TextField variant="standard" label="Enter Password" />
+                <TextField variant="standard" onChange ={(e) => onValueChange(e)} name ='username' label="Enter Your Username" />
+                <TextField variant="standard" onChange ={(e) => onValueChange(e)} name ='password' label="Enter Password" />
                 <Text>By continuing, you agree to Flipkart's Terms of use and Privacy Policy.</Text>
-                <LoginButton>Login</LoginButton>
+                <LoginButton onClick ={() => loginUser()}>Login</LoginButton>
                 <Typography style={{ textAlign: 'center' }}>OR</Typography>
                 <RequestOTP>Request OTP</RequestOTP>
                 <CreateAccount onClick={toggleSignup}>New to Flipkart? Create an account</CreateAccount>
@@ -132,6 +166,7 @@ const LoginDialog = ({ open, setOpen }) => {
                 <TextField variant="standard" onChange={onInputChange} name="email" label="Enter Email" />
                 <TextField variant="standard" onChange={onInputChange} name="password" label="Enter Password" />
                 <TextField variant="standard" onChange={onInputChange} name="phone" label="Enter Phone" />
+                {error && <Typography color="error">{error}</Typography>} {/* Display error message if there's any */}
                 <LoginButton onClick={signupUser}>Continue</LoginButton>
                 <CreateAccount onClick={() => setAccount(accountInitialValues.login)}>Existing? Login</CreateAccount>
               </>
@@ -144,3 +179,4 @@ const LoginDialog = ({ open, setOpen }) => {
 };
 
 export default LoginDialog;
+

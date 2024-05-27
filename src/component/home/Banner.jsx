@@ -19,7 +19,7 @@ const responsive = {
     },
     mobile: {
       breakpoint: { max: 464, min: 0 },
-      ite: 1
+      item: 1
     }
   };
 
@@ -34,9 +34,11 @@ const Banner =() =>{
       infinite={true}
       autoPlay={true}
       autoPlaySpeed={4000}
-      
+      keyBoardControl ={true}
+      slideToslide={1}
       doListClass = "custom-dot-list-style"
       containerclass ="carousel-container"
+      itemClass="carousel-tem-padding-40px"
       >
       {
         bannerData.map(data => (
